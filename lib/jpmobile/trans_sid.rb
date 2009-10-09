@@ -13,7 +13,7 @@ module ParamsOverCookie
         end
         sid ||= request.cookies[@key]
         sid = nil if sid.blank? # 空のSessionIDを無効にする
-        # TODO: ?#{session_key}=hoge とユーザー適当に入力したSessionIDが有効になるのをなんとかしよう
+        # TODO: ?#{session_key}=hoge とユーザーが適当に入力したSessionIDが有効になるのをなんとかしよう
 
         sid, session = get_session(env, sid)
         [sid, session]
@@ -93,7 +93,6 @@ module Jpmobile::TransSid #:nodoc:
     return result unless request # for test process
     return result unless apply_trans_sid?
     result.merge!({ session_key => jpmobile_session_id })
-    Rails.logger.debug result.inspect
     return result
   end
 

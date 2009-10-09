@@ -59,10 +59,15 @@ module Jpmobile::Mobile
     def guid
       @request.env['HTTP_X_DCMGUID']
     end
-
-    # iモードID, FOMAカード製造番号の順で調べ、あるものを返す。なければ +nil+ を返す。
+    
+    # 公式UIDを返す。
+    def uid
+      params['uid'] if params['uid'] && params['uid'] != "NULLGWDOCOMO"
+    end
+    
+    # 公式UID，iモードID, FOMAカード製造番号の順で調べ、あるものを返す。なければ +nil+ を返す。
     def ident_subscriber
-      guid || icc
+      uid || guid || icc
     end
 
     # 画面情報を +Display+ クラスのインスタンスで返す。

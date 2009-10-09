@@ -12,6 +12,8 @@ module ParamsOverCookie
           sid = request.params[@key]
         end
         sid ||= request.cookies[@key]
+        sid = nil if sid.blank? # 空のSessionIDを無効にする
+        # TODO: ?#{session_key}=hoge とユーザー適当に入力したSessionIDが有効になるのをなんとかしよう
 
         sid, session = get_session(env, sid)
         [sid, session]
@@ -90,7 +92,9 @@ module Jpmobile::TransSid #:nodoc:
     result = super || {}
     return result unless request # for test process
     return result unless apply_trans_sid?
-    return result.merge({ session_key => jpmobile_session_id })
+    result.merge!({ session_key => jpmobile_session_id })
+    Rails.logger.debug result.inspect
+    return result
   end
 
   private
@@ -100,7 +104,9 @@ module Jpmobile::TransSid #:nodoc:
   end
   # session_idを返す
   def jpmobile_session_id
-    request.session_options[:id] rescue session.session_id
+    sid = request.session_options[:id] rescue session.session_id
+    session[:__TEMP__] = nil if sid.blank?  # 初回アクセス時にSessionIDがとれないことがあった
+    sid
   end
   # session_idを埋め込むためのhidden fieldを出力する。
   def sid_hidden_field_tag
@@ -113,3 +119,5 @@ module Jpmobile::TransSid #:nodoc:
     response.body.gsub!(%r{(</form>)}i, sid_hidden_field_tag+'\1')
   end
 end
+
+

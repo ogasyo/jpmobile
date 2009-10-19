@@ -104,7 +104,7 @@ module Jpmobile::TransSid #:nodoc:
   # session_idを返す
   def jpmobile_session_id
     sid = request.session_options[:id] rescue session.session_id
-    session[:__TEMP__] = nil if sid.blank?  # 初回アクセス時にSessionIDがとれないことがあった
+    request.session[:fake].nil? and return jpmobile_session_id if sid.blank?  # 初回アクセス時にSessionIDがとれないことがあった
     sid
   end
   # session_idを埋め込むためのhidden fieldを出力する。
